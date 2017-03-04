@@ -1,3 +1,5 @@
+var https = require('https')
+
 exports.handler = (event, context, callback) => {
     try {
         if (event.session.new) {
@@ -16,6 +18,22 @@ exports.handler = (event, context, callback) => {
 
         case "IntentRequest":
             console.log("INTENT REQUEST")
+            var endpoint = "http://marsweather.ingenology.com/v1/latest/"
+            var body = ""
+            https.get(endpoint, (response) => {
+                response.on(data, (chunk) => {body += chunk})
+                response.on(end, () => {
+                    var data = JSON.parse(body)
+                    var marsAtmo = data.report.atmo_opacity
+                    var marsHigh = data.report.max_temp_fahrenheit
+                    var marsLow = data.report.min_temp_fahrenheit
+                    context.succeed(
+                        generateResponse(
+                            buildSpeechResponse(`The weather on Mars today is ${MarsAtmo} with a high of ${marsHigh} and a low of ${MarsLow}`)
+                        )
+                    )
+                })
+            })
             break;
 
         case "SessionEndedRequest":
@@ -31,7 +49,7 @@ exports.handler = (event, context, callback) => {
 
 };
 
-buildSpeechResponce = (outputText, shouldEndSession) => {
+buildSpeechResponse = (outputText, shouldEndSession) => {
     return {
         outputSpeech: {
             type: "plainText",
