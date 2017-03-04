@@ -11,7 +11,7 @@ exports.handler = (event, context, callback) => {
             console.log('LAUNCH REQUEST')
                 context.succeed(
                     generateResponse(
-                        buildSpeechResponse("Some text to say here", false), {}
+                        buildSpeechletResponse("Welcome to space weather", false), {}
                     )
                 )
             break;
@@ -31,7 +31,7 @@ exports.handler = (event, context, callback) => {
                             var marsLow = info.report.min_temp_fahrenheit
                             context.succeed(
                                 generateResponse(
-                                    buildSpeechResponse(`The weather on Mars today is ${marsAtmo} with a high of ${marsHigh} and a low of ${marsLow}`)
+                                    buildSpeechletResponse(`The weather on Mars today is ${marsAtmo} with a high of ${marsHigh} and a low of ${marsLow}`, true), {}
                                 )
                             )
                         })
@@ -53,10 +53,10 @@ exports.handler = (event, context, callback) => {
 
 };
 
-buildSpeechResponse = (outputText, shouldEndSession) => {
+buildSpeechletResponse = (outputText, shouldEndSession) => {
     return {
         outputSpeech: {
-            type: "plainText",
+            type: "PlainText",
             text: outputText //what the device should say
         },
         shouldEndSession: shouldEndSession //should end the session or leave
@@ -66,10 +66,10 @@ buildSpeechResponse = (outputText, shouldEndSession) => {
 
 //generates the data structure that is returned from the lambda function and
 //returned to the amazon alexa service to pass to the device
-generateResponse = (sessionAttributes, speechletResponse) => {
+generateResponse = (speechletResponse, sessionAttributes) => {
     return {
         version: "1.0",
         sessionAttributes: sessionAttributes, //mostly just an empty object
-        responce: speechletResponse //generated from buildSpeechResponce function
+        response: speechletResponse //generated from buildSpeechResponce function
     }
 }
