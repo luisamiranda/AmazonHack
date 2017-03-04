@@ -1,4 +1,4 @@
-var https = require('https')
+var http = require('http')
 
 exports.handler = (event, context, callback) => {
     try {
@@ -9,31 +9,35 @@ exports.handler = (event, context, callback) => {
     switch (event.request.type) {
         case "LaunchRequest":
             console.log('LAUNCH REQUEST')
-                context.succed(
+                context.succeed(
                     generateResponse(
-                        buildSpeechResponse("Some text to say here", true), {}
+                        buildSpeechResponse("Some text to say here", false), {}
                     )
                 )
             break;
 
         case "IntentRequest":
             console.log("INTENT REQUEST")
-            var endpoint = "http://marsweather.ingenology.com/v1/latest/"
-            var body = ""
-            https.get(endpoint, (response) => {
-                response.on(data, (chunk) => {body += chunk})
-                response.on(end, () => {
-                    var data = JSON.parse(body)
-                    var marsAtmo = data.report.atmo_opacity
-                    var marsHigh = data.report.max_temp_fahrenheit
-                    var marsLow = data.report.min_temp_fahrenheit
-                    context.succeed(
-                        generateResponse(
-                            buildSpeechResponse(`The weather on Mars today is ${MarsAtmo} with a high of ${marsHigh} and a low of ${MarsLow}`)
-                        )
-                    )
-                })
-            })
+            switch (event.request.intent.name) {
+                case "GiveMeSpaceStuff":
+                    var endpoint = "http://marsweather.ingenology.com/v1/latest/?format=json"
+                    var body = ""
+                    http.get(endpoint, (response) => {
+                        response.on("data", (chunk) => {body += chunk})
+                        response.on("end", () => {
+                            var info = JSON.parse(body)
+                            var marsAtmo = info['report']['atmo_opacity']
+                            var marsHigh = info.report.max_temp_fahrenheit
+                            var marsLow = info.report.min_temp_fahrenheit
+                            context.succeed(
+                                generateResponse(
+                                    buildSpeechResponse(`The weather on Mars today is ${marsAtmo} with a high of ${marsHigh} and a low of ${marsLow}`)
+                                )
+                            )
+                        })
+                    })
+                    break;
+                }
             break;
 
         case "SessionEndedRequest":
