@@ -8,7 +8,6 @@ exports.handler = (event, context, callback) => {
 
     switch (event.request.type) {
         case "LaunchRequest":
-            console.log('LAUNCH REQUEST')
                 context.succeed(
                     generateResponse(
                         buildSpeechletResponse("Welcome to space weather", false), {}
@@ -17,7 +16,6 @@ exports.handler = (event, context, callback) => {
             break;
 
         case "IntentRequest":
-            console.log("INTENT REQUEST")
             switch (event.request.intent.name) {
                 case "GiveMeSpaceStuff":
                     var endpoint = "http://marsweather.ingenology.com/v1/latest/?format=json"
